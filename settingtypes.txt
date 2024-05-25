@@ -1,0 +1,4 @@
+# I recommend not going much higher than 10 as it gets really slow
+radius_limit   (the maximum radius the terraform command can have)  int 10
+# A multiplier for the threshold value for the convolution algorithm
+threshold_multiplier (the internal multiplier for the block placement threshold) int 1
