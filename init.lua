@@ -9,13 +9,18 @@ local radius_limit = minetest.settings:get("radius_limit")
 if (radius_limit == nil) then
 	radius_limit = 10
 	minetest.settings:set("radius_limit",10)
+else
+    radius_limit = tonumber(radius_limit)
 end
+
 
 local threshold_multiplier = minetest.settings:get("threshold_multiplier")
 
 if (threshold_multiplier == nil) then
 	threshold_multiplier = 1
 	minetest.settings:set("threshold_multiplier",1)
+else
+    threshold_multiplier = tonumber(threshold_multiplier)
 end
 
 local function createGaussianKernel(radius, sigma)
@@ -107,14 +112,17 @@ terraform.check_terraform = function(param)
 	if found == nil then
 		return false
 	end
-    if (tonumber(threshold) > 1) then threshold = 1 end
+    radius = tonumber(radius)
+    threshold = tonumber(threshold)
+    if(radius > radius_limit) then radius = radius_limit  end
+    if(threshold > 100) then threshold = 100 end
     if(shape == "cube") then shape = true else shape = false end
-	return true, tonumber(radius), (tonumber(threshold*threshold_multiplier)/5)+0.4, shape
+	return true, radius, ((threshold/500)*threshold_multiplier)+0.4, shape
 end
 
 worldedit.register_command("terraform", {
 	params = "<radius> <shape> <threshold offset>",
-	description = S("Terraform the blocks in <shape>(true = cube, false = sphere) at WorldEdit position 1 with radius <radius> and <threshold> [0,1], <radius> is limited to conf max radius."),
+	description = S("Terraform the blocks in <shape>(true = cube, false = sphere) at WorldEdit position 1 with radius <radius> and <threshold> [0,100], <radius> is limited to conf max radius."),
 	privs = {worldedit=true},
     require_pos = 1,
     parse = terraform.check_terraform,
