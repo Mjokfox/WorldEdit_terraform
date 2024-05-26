@@ -4,23 +4,14 @@ local terraform = {}
 
 mh = worldedit.manip_helpers
 
-local radius_limit = minetest.settings:get("radius_limit")
+local radius_limit = tonumber(minetest.settings:get("terraform_radius_limit")) or 10
+local threshold_multiplier = tonumber(minetest.settings:get("terraform_threshold_multiplier")) or 20
+local gauss_sigma = tonumber(minetest.settings:get("terraform_gauss_sigma")) or 4
+local guass_radius = tonumber(minetest.settings:get("terraform_guass_radius")) or 2
 
-if (radius_limit == nil) then
-	radius_limit = 10
-	minetest.settings:set("radius_limit",10)
-else
-    radius_limit = tonumber(radius_limit)
-end
-
-
-local threshold_multiplier = minetest.settings:get("threshold_multiplier")
-
-if (threshold_multiplier == nil) then
-	threshold_multiplier = 1
-	minetest.settings:set("threshold_multiplier",1)
-else
-    threshold_multiplier = tonumber(threshold_multiplier)
+if (threshold_multiplier > 100) then
+	threshold_multiplier = 100
+	minetest.settings:set("terraform_threshold_multiplier",100)
 end
 
 local function createGaussianKernel(radius, sigma)
@@ -53,12 +44,11 @@ local function createGaussianKernel(radius, sigma)
     return kernel
 end
 
-local kernelradius = 4
-local kernel = createGaussianKernel(kernelradius, 2)
+local kernel = createGaussianKernel(guass_radius, gauss_sigma)
 
 terraform.terraform = function(pos,radius,threshold,shape)
     
-    local manip, area = mh.init_radius(pos, radius+kernelradius)
+    local manip, area = mh.init_radius(pos, radius+guass_radius)
 
 	local data = mh.get_empty_data(area)
 
@@ -68,14 +58,14 @@ terraform.terraform = function(pos,radius,threshold,shape)
 
     local function convolute(conpos)
         local sum = 0
-        for kx = -kernelradius, kernelradius do
-            for ky = -kernelradius, kernelradius do
-                for kz = -kernelradius, kernelradius do
+        for kx = -guass_radius, guass_radius do
+            for ky = -guass_radius, guass_radius do
+                for kz = -guass_radius, guass_radius do
                     local temppos = vector.new(conpos.x + kx, conpos.y + ky, conpos.z + kz)
                     local node = manip:get_node_at(temppos)
                     if node.name ~= "ignore" then
                         if node.name ~= "air" then
-                            sum = sum + kernel[kx + kernelradius + 1][ky + kernelradius + 1][kz + kernelradius + 1]
+                            sum = sum + kernel[kx + guass_radius + 1][ky + guass_radius + 1][kz + guass_radius + 1]
                         end
                     end
                 end
@@ -117,7 +107,8 @@ terraform.check_terraform = function(param)
     if(radius > radius_limit) then radius = radius_limit  end
     if(threshold > 100) then threshold = 100 end
     if(shape == "cube") then shape = true else shape = false end
-	return true, radius, ((threshold/500)*threshold_multiplier)+0.4, shape
+    threshold = 0.5-(threshold_multiplier/200)+((threshold_multiplier*threshold)/10000)
+	return true, radius, threshold, shape
 end
 
 worldedit.register_command("terraform", {

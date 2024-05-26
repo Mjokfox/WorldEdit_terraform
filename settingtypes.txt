@@ -1,4 +1,7 @@
-# I recommend not going much higher than 10 as it gets really slow
-radius_limit   (the maximum radius the terraform command can have)  int 10
-# A multiplier for the threshold value for the convolution algorithm
-threshold_multiplier (the internal multiplier for the block placement threshold) int 1
+terraform_radius_limit   (the maximum radius of the terraform command)  int 10
+# 20 is default, which ranges the threshold between 0.4 and 0.6 for 0-100 in the command. 0 disables it, 100 ranges it between 0 and 1
+terraform_threshold_multiplier (Multiplier for the threshold) int 20
+# lower makes it more center targeted, high makes it more equally distributed
+terraform_gauss_sigma (the sigma value for the gaussian kernel) int 4
+# Higher values make it more accurate, but the computation time increase cubic along with the terraform radius
+terraform_guass_radius (the radius for the gaussian kernel) int 2
