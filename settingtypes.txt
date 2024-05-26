@@ -1,7 +1,7 @@
-terraform_radius_limit   (the maximum radius of the terraform command)  int 10
+worldedit_terraform_radius_limit   (The maximum radius of the terraform command)  int 10
 # 20 is default, which ranges the threshold between 0.4 and 0.6 for 0-100 in the command. 0 disables it, 100 ranges it between 0 and 1
-terraform_threshold_multiplier (Multiplier for the threshold) int 20
+worldedit_terraform_threshold_multiplier (Multiplier for the threshold) int 20
 # lower makes it more center targeted, high makes it more equally distributed
-terraform_gauss_sigma (the sigma value for the gaussian kernel) int 4
+worldedit_terraform_gauss_sigma (The sigma value for the gaussian kernel) int 4
 # Higher values make it more accurate, but the computation time increase cubic along with the terraform radius
-terraform_guass_radius (the radius for the gaussian kernel) int 2
+worldedit_terraform_guass_radius (The radius for the gaussian kernel) int 2

@@ -1,17 +1,17 @@
 local S = minetest.get_translator("worldedit_commands")
 
-local terraform = {}
+local worldedit_terraform = {}
 
 mh = worldedit.manip_helpers
 
-local radius_limit = tonumber(minetest.settings:get("terraform_radius_limit")) or 10
-local threshold_multiplier = tonumber(minetest.settings:get("terraform_threshold_multiplier")) or 20
-local gauss_sigma = tonumber(minetest.settings:get("terraform_gauss_sigma")) or 4
-local guass_radius = tonumber(minetest.settings:get("terraform_guass_radius")) or 2
+local radius_limit = tonumber(minetest.settings:get("worldedit_terraform_radius_limit")) or 10
+local threshold_multiplier = tonumber(minetest.settings:get("worldedit_terraform_threshold_multiplier")) or 20
+local gauss_sigma = tonumber(minetest.settings:get("worldedit_terraform_gauss_sigma")) or 4
+local guass_radius = tonumber(minetest.settings:get("worldedit_terraform_guass_radius")) or 2
 
 if (threshold_multiplier > 100) then
 	threshold_multiplier = 100
-	minetest.settings:set("terraform_threshold_multiplier",100)
+	minetest.settings:set("worldedit_terraform_threshold_multiplier",100)
 end
 
 local function createGaussianKernel(radius, sigma)
@@ -46,7 +46,7 @@ end
 
 local kernel = createGaussianKernel(guass_radius, gauss_sigma)
 
-terraform.terraform = function(pos,radius,threshold,shape)
+worldedit_terraform.terraform = function(pos,radius,threshold,shape)
     
     local manip, area = mh.init_radius(pos, radius+guass_radius)
 
@@ -97,7 +97,7 @@ terraform.terraform = function(pos,radius,threshold,shape)
 	mh.finish(manip, data)
 end
 
-terraform.check_terraform = function(param)
+worldedit_terraform.check_terraform = function(param)
 	local found, _, radius, threshold, shape = param:find("^(%d+)%s+(%d+)%s+(%a+)$")
 	if found == nil then
 		return false
@@ -112,12 +112,12 @@ terraform.check_terraform = function(param)
 end
 
 worldedit.register_command("terraform", {
-	params = "<radius> <shape> <threshold offset>",
-	description = S("Terraform the blocks in <shape>(true = cube, false = sphere) at WorldEdit position 1 with radius <radius> and <threshold> [0,100], <radius> is limited to conf max radius."),
+	params = "<radius> <threshold offset> <shape>",
+	description = S("Terraform the blocks in <shape>(\"cube\" or \"sphere\") at WorldEdit position 1 with radius <radius> and <threshold> [0,100], <radius> is limited to configured max radius."),
 	privs = {worldedit=true},
     require_pos = 1,
-    parse = terraform.check_terraform,
+    parse = worldedit_terraform.check_terraform,
 	func = function(name, radius, threshold,shape)
-		terraform.terraform(worldedit.pos1[name], radius, threshold, shape)
+		worldedit_terraform.terraform(worldedit.pos1[name], radius, threshold, shape)
 	end,
 })
