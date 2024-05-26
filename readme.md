@@ -12,8 +12,10 @@ shape: Shape of the terraform area, either "sphere" or "cube".
 
 ## Settings
 
-radius_limit (int): Maximum allowable radius for the terraform operation.\
-threshold_multiplier (int): Multiplier applied to the threshold value.
+radius_limit: Maximum allowable radius for the terraform operation.\
+threshold_multiplier: Multiplier applied to the threshold value.\
+gauss_sigma: The sigma value used in the generation of the guassian kernel.\
+guass_radius: The radius of the kernel.
 
 ## Examples
 
